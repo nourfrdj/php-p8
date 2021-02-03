@@ -1,129 +1,92 @@
-<!doctype html>
+<?php
+$monthsArray = [
+    1 => 'Janvier',
+    2 => 'Fevrier',
+    3 => 'Mars',
+    4 => 'Avril',
+    5 => 'Mai',
+    6 => 'Juin',
+    7 => 'Juillet',
+    8 => 'Aout',
+    9 => 'Septembre',
+    10 => 'Octobre',
+    11 => 'Novembre',
+    12 => 'Decembre'
+];
+$yearMin = 2015;
+$yearMax = 2025;
+$daysArray = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+?>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
-    <meta charset="utf-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <title>partie8 TP</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon premier Calendrier</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 </head>
 
 <body>
-    <?php
-    if (isset($_POST['afficher'])) {
-        $mois = $_POST['mois'];
-        $annee = $_POST['annee'];
-        $nbdays = cal_days_in_month(CAL_GREGORIAN, $mois, $annee);
-        $premierjour = getdate(strtotime($mois . "/01/" . $annee))["wday"];
-        echo 'le premier jour de la semaine est ' . $premierjour;
-    ?>
+    <div class="container text-center">
+        <h1>Mon Calendrier</h1>
         <div class="container">
-            <table class="table table-bordered border-info">
-                <thead class="table-info text-center">
+            <form method="GET">
+                <div class="m-1">
+                    <select name="month" id="month">
+                        <option selected disabled>Choisir un mois</option>
+                        <?php
+                        foreach ($monthsArray as $key => $value) { ?>
+                            <option value="<?= $key ?>" <?= isset($_GET['month']) && $_GET['month'] == $key ? "selected" : "" ?>><?= $value ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+                <div class="m-1">
+                    <select name="year" id="year">
+                        <option selected disabled>Choisir une année</option>
+                        <?php
+                        for ($i = $yearMin; $i <= $yearMax; $i++) { ?>
+                            <option <?= isset($_GET['year']) && $_GET['year'] == $i ? "selected" : "" ?>><?= $i ?></option>
+                            <!-- si la value n'est pas precisé il prendra la valeur de l'option
+                            l'avantage de cet isset est de garder les valeur des champs et des choix en cas de rafraichissement de la page  -->
+                        <?php } ?>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-lg btn-secondary mt-2">Afficher </button>
+            </form>
+        </div>
+        <div>
+            <table class="table table-bordered">
+                <thead>
                     <tr>
-                        <th scope="col">Lundi</th>
-                        <th scope="col">Mardi</th>
-                        <th scope="col">Mercredi</th>
-                        <th scope="col">Jeudi</th>
-                        <th scope="col">Vendredi</th>
-                        <th scope="col">Samedi</th>
-                        <th scope="col">Dimanche</th>
+                        <?php foreach ($daysArray as $day) { ?>
+                            <th><?= $day ?></th>
+                        <?php } ?>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    function afficheCal($nbrecase, $nbdays)
-                    { ?>
+                    $row = 1;
+                    $case = 1;
 
+                    while ($row <= 6) { ?>
                         <tr>
                             <?php
-
-                            echo ' le nombre de case vide' . $nbrecase . '     ';
-                            echo 'le nombre de jours en total est : ' . $nbdays . '<br>';
-                            $i = 0;
-                            for ($vide = 1; $vide == $nbrecase; $vide++) { ?>
-                                <td><?php echo "x"; ?></td>
-                            <?php }
-                            for ($j = $nbrecase; $j == 7; $j++) { ?>
-                                <td><?php $i++;
-                                    echo $i; ?></td>
-                            <?php  } ?>
+                            for ($i = 1; $i <= 7; $i++) { ?>
+                                <td><?= $case ?></td>
+                            <?php
+                                $case++;
+                            } ?>
                         </tr>
+                    <?php
 
-                        <?php
-                        while ($i < $nbdays) { ?>
-                            <tr>
-                                <?php for ($j = 1; $j <= 7; $j++) { ?>
-                                    <td><?php $i++;
-                                        echo $i; ?></td>
-                                <?php } ?>
-                            </tr>
+                        $row++;
+                    } ?>
 
-                    <?php }
-                    }
-                    switch ($premierjour) {
-                        case 1:
-                            afficheCal(1, $nbdays);
-                            break;
-                        case 2:
-                            afficheCal(2, $nbdays);
-                            break;
-                        case 3:
-                            afficheCal(3, $nbdays);
-                            break;
-                        case '4':
-                            afficheCal(4, $nbdays);
-                            break;
-                        case '5':
-                            afficheCal(5, $nbdays);
-                            break;
-                        case '6':
-                            afficheCal(6, $nbdays);
-                            break;
-                        case '7':
-                            afficheCal(7, $nbdays);
-                            break;
-                    }
-                } else { ?>
-
-                    <div class="container">
-                        <form method="POST" action='index.php'>
-                            <select name="mois" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
-                                <option selected>Veuillez selectionner un mois</option>
-                                <option value="1">Janvier</option>
-                                <option value="2">Fevrier</option>
-                                <option value="3">Mars</option>
-                                <option value="4">Avril</option>
-                                <option value="5">Mai</option>
-                                <option value="6">Juin</option>
-                                <option value="7">Juillet</option>
-                                <option value="8">Aout</option>
-                                <option value="9">Septembre</option>
-                                <option value="10">Octobre</option>
-                                <option value="11">Novombre</option>
-                                <option value="12">Decembre</option>
-
-                            </select>
-                            <select name="annee" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
-                                <option selected>Veuillez selectionner une année</option>
-                                <?php
-                                for ($i = date('Y'); $i >= 1950; $i--) { ?>
-                                    <option value="<?=$i?>"><?php echo $i; ?></option>
-                                <?php }
-                                ?>
-                            </select>
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-primary" type="submit" name="afficher">afficher le calendrier</button>
-                            </div>
-                        </form>
-                    </div>
-
-                <?php
-                } ?>
                 </tbody>
             </table>
-
-
-
+        </div>
+    </div>
 </body>
 
 </html>
