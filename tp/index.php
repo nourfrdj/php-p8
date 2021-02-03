@@ -1,21 +1,34 @@
 <?php
 $monthsArray = [
     1 => 'Janvier',
-    2 => 'Fevrier',
+    2 => 'Février',
     3 => 'Mars',
     4 => 'Avril',
     5 => 'Mai',
     6 => 'Juin',
     7 => 'Juillet',
-    8 => 'Aout',
+    8 => 'Août',
     9 => 'Septembre',
     10 => 'Octobre',
     11 => 'Novembre',
-    12 => 'Decembre'
+    12 => 'Décembre'
 ];
+
 $yearMin = 2015;
 $yearMax = 2025;
 $daysArray = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+if (isset($_POST['btnSubmit'])) {
+    $totalDaysInMonth = cal_days_in_month(CAL_GREGORIAN, $_POST['month'], $_POST['year']);
+    $firstDayInMonth = date('w', mktime(12, 0, 0, $_POST['month'], 1, $_POST['year']));
+    $month = $monthsArray[$_POST['month']];
+    $year = $_POST['year'];
+} else {
+    $totalDaysInMonth = cal_days_in_month(CAL_GREGORIAN, date('n'), date('Y'));
+    $firstDayInMonth =  date('w', mktime(12, 0, 0, date('n'), 1, date('Y')));
+    setlocale(LC_TIME, ["fr"], ["fra"], ["fr_FR"]);
+    $month = utf8_encode(strftime('%B'));
+    $year = date('Y');
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -31,13 +44,13 @@ $daysArray = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dima
     <div class="container text-center">
         <h1>Mon Calendrier</h1>
         <div class="container">
-            <form method="GET">
+            <form method="POST">
                 <div class="m-1">
                     <select name="month" id="month">
                         <option selected disabled>Choisir un mois</option>
                         <?php
                         foreach ($monthsArray as $key => $value) { ?>
-                            <option value="<?= $key ?>" <?= isset($_GET['month']) && $_GET['month'] == $key ? "selected" : "" ?>><?= $value ?></option>
+                            <option value="<?= $key ?>" <?= isset($_POST['month']) && $_POST['month'] == $key ? "selected" : "" ?>><?= $value ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -46,16 +59,17 @@ $daysArray = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dima
                         <option selected disabled>Choisir une année</option>
                         <?php
                         for ($i = $yearMin; $i <= $yearMax; $i++) { ?>
-                            <option <?= isset($_GET['year']) && $_GET['year'] == $i ? "selected" : "" ?>><?= $i ?></option>
+                            <option <?= isset($_POST['year']) && $_POST['year'] == $i ? "selected" : "" ?>><?= $i ?></option>
                             <!-- si la value n'est pas precisé il prendra la valeur de l'option
                             l'avantage de cet isset est de garder les valeur des champs et des choix en cas de rafraichissement de la page  -->
                         <?php } ?>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-lg btn-secondary mt-2">Afficher </button>
+                <button type="submit" name="btnSubmit" class="btn btn-lg btn-secondary mt-2">Afficher </button>
             </form>
         </div>
         <div>
+            <h2><?= "$month - $year" ?></h2>
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -66,23 +80,24 @@ $daysArray = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dima
                 </thead>
                 <tbody>
                     <?php
-                    $row = 1;
                     $case = 1;
-
-                    while ($row <= 6) { ?>
+                    $day = 1;
+                    while ($day <= $totalDaysInMonth) { ?>
                         <tr>
                             <?php
-                            for ($i = 1; $i <= 7; $i++) { ?>
-                                <td><?= $case ?></td>
-                            <?php
+                            for ($i = 1; $i <= 7; $i++) {
+                                if ($case >= $firstDayInMonth && $day <= $totalDaysInMonth) { ?>
+                                    <td><?= $day ?></td>
+                                <?php
+                                    $day++;
+                                } else { ?>
+                                    <td class="bg-secondary"></td>
+                            <?php }
                                 $case++;
                             } ?>
                         </tr>
                     <?php
-
-                        $row++;
                     } ?>
-
                 </tbody>
             </table>
         </div>
